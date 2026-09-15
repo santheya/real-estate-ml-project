@@ -1,0 +1,6 @@
+Model,Accuracy,Precision,Recall,F1 Score
+Logistic Regression,0.90312,0.9111562749510053,0.9128790633408479,0.9120168555652427
+Decision Tree Classifier,1.0,1.0,1.0,1.0
+Random Forest Classifier,0.9968,0.9942158918371774,1.0,0.9970995576825465
+Gradient Boosting Classifier,1.0,1.0,1.0,1.0
+XGBoost Classifier,0.99984,0.99978186577474,0.9999272780161442,0.9998545666084933

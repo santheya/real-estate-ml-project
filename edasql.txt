@@ -1,0 +1,148 @@
+1–5: Price & Size Analysis
+What is the distribution of property prices?
+select case when Price_in_Lakhs <= 100 then "0-100L" ,
+when Price_in_Lakhs > 100 and Price_in_Lakhs <= 200 then "101-200L" 
+when Price_in_Lakhs >200 and Price_in_Lakhs <= 300 then "201-300L" 
+when Price_in_Lakhs >300 and Price_in_Lakhs <= 400then "301-400L" 
+when Price_in_Lakhs >400 and Price_in_Lakhs < = 500 then "401-500L" 
+End as Price_Bucket,
+count(*)
+from real_estate.property_data group by Price_Bucket  order by Price_Bucket
+
+What is the distribution of property sizes?
+select case 
+when Size_in_SqFt <= 1000 then "sqft less than 1000"
+when Size_in_SqFt > 1000 and Size_in_SqFt <= 2000 then "between 1000 to 2000"
+when Size_in_SqFt > 2000 and Size_in_SqFt <= 3000 then "between 2000 to 3000"
+when Size_in_SqFt > 3000 and Size_in_SqFt <= 4000 then "between 3000 to 4000"
+when Size_in_SqFt > 4000 and Size_in_SqFt <= 5000 then "between 4000 to 5000" End as size_category,
+count(*) as property_sizes from real_estate.property_data group by size_category order by size_category
+
+How does the price per sq ft vary by property type?
+select Property_Type, avg(Price_per_SqFt) as Average_price_per_sqft from real_estate.property_data group by Property_Type order by Average_price_per_sqft
+
+Is there a relationship between property size and price?
+select corr(Size_in_SqFt,Price_in_Lakhs) from real_estate.property_data
+
+Are there any outliers in price per sq ft or property size?
+
+
+
+6–10: Location-based Analysis
+What is the average price per sq ft by state?
+select State, avg(Price_per_SqFt) as Average_price from real_estate.property_data group by State order by State
+
+What is the average property price by city?
+
+select City , avg(Price_in_Lakhs) as Property_price from real_estate.property_data group by City order by Property_price
+
+
+What is the median age of properties by locality?
+WITH ranked_data AS (
+    SELECT
+        Locality,
+        Age_of_Property,
+        ROW_NUMBER() OVER (
+            PARTITION BY Locality
+            ORDER BY Age_of_Property
+        ) AS row_num,
+        COUNT(*) OVER (
+            PARTITION BY Locality
+        ) AS total_rows
+    FROM real_estate.property_data
+),
+median_values AS (
+    SELECT
+        Locality,
+        Age_of_Property
+    FROM ranked_data
+    WHERE row_num IN (
+        FLOOR((total_rows + 1) / 2),
+        FLOOR((total_rows + 2) / 2)
+    )
+)
+SELECT
+    Locality,
+    AVG(Age_of_Property) AS Median_Age
+FROM median_values
+GROUP BY Locality
+ORDER BY Median_Age;
+
+How is BHK distributed across cities?
+
+select City, BHK, case
+when BHK = 1 THEN "1BHK"
+when BHK = 2 THEN "2BHK"
+when BHK = 3 THEN "3BHK"
+when BHK = 4 THEN "4BHK"
+when BHK = 5 THEN "5BHK" END AS BHK_Category, count(*) from real_estate.property_data group by City,BHK order by BHK_Category
+
+
+
+What are the price trends for the top 5 most expensive localities?
+
+
+select Locality , avg(Price_per_SqFt) as average_price from real_estate.property_data group by Locality order by average_price desc limit 5
+
+
+
+11–15: Feature Relationship & Correlation
+How are numeric features correlated with each other?
+SELECT
+    CORR(BHK, Price_in_Lakhs) AS BHK_Price_Correlation,
+    CORR(Size_in_SqFt, Price_in_Lakhs) AS Size_Price_Correlation,
+    CORR(Year_Built, Price_in_Lakhs) AS Year_Price_Correlation,
+    CORR(Floor_No, Price_in_Lakhs) AS Floor_Price_Correlation,
+    CORR(Total_Floors, Price_in_Lakhs) AS Total_Floors_Price_Correlation,
+    CORR(Age_of_Property, Price_in_Lakhs) AS Age_Price_Correlation,
+    CORR(Nearby_Schools, Price_in_Lakhs) AS Schools_Price_Correlation,
+    CORR(Nearby_Hospitals, Price_in_Lakhs) AS Hospitals_Price_Correlation
+FROM real_estate.property_data;
+
+How do nearby schools relate to price per sq ft?
+SELECT CORR(Nearby_Schools, Price_per_SqFt) AS School_Price_Correlation FROM real_estate.property_data
+
+How do nearby hospitals relate to price per sq ft?
+
+select corr(Nearby_Hospitals,Price_per_SqFt) as Price_Correlation from real_estate.property_data
+
+How does price vary by furnished status?
+select avg(Price_in_Lakhs) as average_price,Furnished_Status from real_estate.property_data group by Furnished_Status ORDER BY Average_Price DESC;
+
+How does price per sq ft vary by property facing direction?
+
+select avg(Price_per_SqFt) as average_price,Facing from real_estate.property_data group by Facing ORDER BY Average_Price DESC;
+
+
+How many properties belong to each owner type?
+select Owner_Type,count(ID) as Property_count from real_estate.property_data group by Owner_Type order by Property_count desc
+
+How many properties are available under each availability status?
+select Availability_Status,count(ID) as Property_count from real_estate.property_data group by Availability_Status order by Property_count desc
+
+Does parking space affect property price?
+select Parking_Space , avg(Price_in_Lakhs) as average_price from real_estate.property_data group by Parking_Space order by Average_Price DESC;
+
+How do amenities affect price per sq ft?
+select Amenities,avg(Price_per_SqFt) as average_price from real_estate.property_data group by Amenities order by average_price desc
+
+How does public transport accessibility relate to price per sq ft or investment potential?
+
+select Public_Transport_Accessibility, avg(Price_per_SqFt) as average_price from real_estate.property_data group by Public_Transport_Accessibility order by average_price desc
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

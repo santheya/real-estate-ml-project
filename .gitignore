@@ -1,0 +1,27 @@
+# Virtual environment
+.venv/
+venv/
+Include/
+Lib/
+etc/
+share/
+pyvenv.cfg
+
+# Virtual environment executables inside Scripts
+Scripts/*.exe
+Scripts/*.dll
+Scripts/*.pyd
+Scripts/*.pdb
+Scripts/activate*
+Scripts/deactivate*
+
+# Python cache
+__pycache__/
+*.pyc
+
+# VS Code
+.vscode/
+
+# Temporary files
+~$*
+*.tmp
